@@ -1,6 +1,5 @@
 from db.database import session_factory
 from db.models import Characters
-from sqlalchemy import delete, select
 
 
 class CharacterQueries:
@@ -17,4 +16,3 @@ class CharacterQueries:
             character = session.query(Characters).filter(Characters.character == character).first()
 
         return character.character_id
-

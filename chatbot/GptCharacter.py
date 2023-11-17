@@ -1,6 +1,7 @@
 import openai
+from config import settings
 
-openai.api_key = "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"
+openai.api_key = settings.OPENAI_API_KEY
 
 
 class GptCharacter:
@@ -11,21 +12,17 @@ class GptCharacter:
                                                             f"a bot, an artificial intelligence. "
                                                             f"All your answers must be from {self.character}"})
 
+    # Adds messages from the user to the dialogue history
     def set_message(self, message):
         self._messages.append({"role": "user", "content": message})
 
+    # Adds messages from the bot to the dialogue history
     def set_bot_message(self, message):
         self._messages.append({"role": "assistant", "content": message})
 
-    def get_message(self):
-        response = self._generate_response()
-        reply = response["choices"][0]["message"]["content"]
-        self._messages.append({"role": "assistant", "content": reply})
-        return reply
-
-    def _generate_response(self):
+    def generate_response(self):
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo-0613",
             messages=self._messages,
             temperature=1,
             max_tokens=512,
@@ -35,5 +32,13 @@ class GptCharacter:
         )
         return response
 
-    def get_msg(self):
+    # Generates a response from the bot and saves it to the dialogue history
+    def get_reply(self):
+        response = self.generate_response()
+        reply = response["choices"][0]["message"]["content"]
+        self.set_bot_message(reply)
+        return reply
+
+    # Return dialog history
+    def get_context(self):
         return self._messages

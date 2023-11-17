@@ -2,7 +2,7 @@ import datetime
 from typing import Annotated
 from sqlalchemy import String, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column
-from db.database import Base, engine
+from db import Base, engine
 
 int_pk = Annotated[int, mapped_column(primary_key=True)]
 

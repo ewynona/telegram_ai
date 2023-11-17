@@ -1,5 +1,4 @@
-from db.models import CharacterMsg
-from db.database import session_factory
+from db import CharacterMsg, session_factory
 
 
 class MsgQueries:

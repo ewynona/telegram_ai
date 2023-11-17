@@ -1,7 +1,6 @@
-from db.database import session_factory
-from db.models import UserInfo, Characters
-from db.queries.CharacterQueries import CharacterQueries
-from sqlalchemy import delete, select
+from db import session_factory, UserInfo, Characters
+from db.queries import CharacterQueries
+from sqlalchemy import delete
 
 
 class UserQueries:

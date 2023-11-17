@@ -1,5 +1,5 @@
 import asyncio
-from bot.handlers.handlers import router
+from bot.handlers import router
 from aiogram import Bot, Dispatcher
 
 
@@ -12,7 +12,7 @@ async def main():
 if __name__ == '__main__':
     try:
         asyncio.run(main())
-    except Exception:
-        print("Exit")
+    except Exception as error:
+        print("Exit\n", error)
 
 
