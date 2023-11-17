@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     DB_PASS: str
     DB_NAME: str
     OPENAI_API_KEY: str
+    TELEGRAM_API_KEY: str
 
     @property
     def database_url_psycopg(self):
