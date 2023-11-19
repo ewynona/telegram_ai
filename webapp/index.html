@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        document.addEventListener("click", function(e) {
+            if (e.target.closest('.rounded-image')) {
+                tg.sendData(e.target.id)
+                tg.close()
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="image-container">
+        <div class="rounded-image mario" id="mario"></div>
+        <div class="image-title">Mario</div>
+    </div>
+    <div class="image-container">
+        <div class="rounded-image albert" id="AlbertEinstein"></div>
+        <div class="image-title">Albert</div>
+    </div>
+</body>
+</html>

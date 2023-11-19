@@ -23,9 +23,11 @@ async def cmd_web_data(message: Message):
     )
 
 
+# Generates and sends a response from chatgpt
 @router.message(F.text)
 async def cmd_text(message: Message, character: GptCharacter, character_id: int):
     character.set_message(message.text)
-    bot_msg = character.get_reply()
+    # bot_msg = character.get_reply()
+    bot_msg = 'test'
     MsgQueries.insert_msg(message.from_user.id, character_id, message.text, bot_msg)
     await message.answer(f"{bot_msg}")
