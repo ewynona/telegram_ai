@@ -37,9 +37,4 @@ class CharacterMsg(Base):
     msg_date: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
 
-if __name__ == '__main__':
-    def create_table():
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-
-    create_table()
+Base.metadata.create_all(engine)
