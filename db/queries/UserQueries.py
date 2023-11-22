@@ -32,10 +32,10 @@ class UserQueries:
         return user
 
     @staticmethod
-    def update_user_character(user_id: int, character):
+    def update_user_character(user_id: int, character_id):
         with session_factory() as session:
             user = session.query(UserInfo).filter(UserInfo.user_id == user_id).first()
-            user.current_character = CharacterQueries.get_character_id(character)
+            user.current_character = character_id
             session.commit()
 
     @staticmethod

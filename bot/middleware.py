@@ -2,8 +2,7 @@ from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import Message
 from chatbot import GptCharacter
-from db.queries import UserQueries
-from db.queries import MsgQueries
+from db.queries import UserQueries, MsgQueries, CharacterQueries
 
 
 # Checks whether the user is registered and has a character selected for communication
@@ -17,13 +16,15 @@ async def user_check(event) -> bool:
                                 username=event.from_user.username,
                                 name=event.from_user.first_name,
                                 second_name=event.from_user.last_name)
+        return True
     elif get_user.current_character is None and event.text != '/start' and event.web_app_data is None:
-        await event.answer('Выберите персонажа с которым будете общаться.')
+        await event.answer('Выберите персонажа с которым будете общаться. Для выбора введите команду /start')
     else:
         return True
     return False
 
 
+# !!!!! Remake it by configure character caching for each user !!!!!
 class CounterMiddleware(BaseMiddleware):
     def __init__(self):
         self.character = None
@@ -40,15 +41,22 @@ class CounterMiddleware(BaseMiddleware):
             return
 
         # Checking for character change or launch after bot restart
-        if event.content_type == 'web_app_data' or self.character is None:
-            if event.content_type == 'web_app_data':
-                UserQueries.update_user_character(event.from_user.id, event.web_app_data.data)
-            self.character = GptCharacter(UserQueries.get_current_character(event.from_user.id))
-            self.character_id = UserQueries.select_user(event.from_user.id).current_character
+        if event.content_type == 'web_app_data' or self.character is None and event.text != '/start':
+            user_id = event.from_user.id
 
+            if event.content_type == 'web_app_data':
+                character = event.web_app_data.data
+                character_id = CharacterQueries.get_character_id(character)
+
+                if character_id is None:
+                    CharacterQueries.insert_character(character)
+                    character_id = CharacterQueries.get_character_id(character)
+                UserQueries.update_user_character(user_id, character_id)
+
+            self.character = GptCharacter(UserQueries.get_current_character(user_id))
+            self.character_id = UserQueries.select_user(user_id).current_character
         # Saving the dialogue history from the database to maintain the context of the dialogue
-        # !!!!! Remake it by saving the history in a separate variable for each user !!!!!
-        if event.content_type == 'text':
+        elif event.content_type == 'text':
             messages = MsgQueries.get_msg(event.from_user.id, self.character_id)
             for msg in messages:
                 self.character.set_message(msg.user_msg)

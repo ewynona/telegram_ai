@@ -10,9 +10,13 @@ class CharacterQueries:
             session.add(person)
             session.commit()
 
+
     @staticmethod
     def get_character_id(character: str):
         with session_factory() as session:
             character = session.query(Characters).filter(Characters.character == character).first()
-
+            if character is None:
+                return None
         return character.character_id
+
+
