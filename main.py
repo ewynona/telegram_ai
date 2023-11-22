@@ -3,7 +3,7 @@ from bot.handlers import router
 from aiogram import Bot, Dispatcher
 from config import settings
 
-
+#
 async def main():
     bot = Bot(token=settings.TELEGRAM_API_KEY)
     dp = Dispatcher()
