@@ -25,10 +25,10 @@ async def user_check(event) -> bool:
 
 
 # !!!!! Remake it by configure character caching for each user !!!!!
-class CounterMiddleware(BaseMiddleware):
+class UserMiddleware(BaseMiddleware):
     def __init__(self):
-        self.character = None
-        self.character_id = None
+        self.cache = {}
+        self.current_character = {}
 
     async def __call__(
             self,
@@ -40,29 +40,36 @@ class CounterMiddleware(BaseMiddleware):
         if await user_check(event) is False:
             return
 
+        user_id = event.from_user.id
+
         # Checking for character change or launch after bot restart
-        if event.content_type == 'web_app_data' or self.character is None and event.text != '/start':
-            user_id = event.from_user.id
+
+        if event.content_type == 'web_app_data' or user_id not in self.cache and event.text != '/start':
 
             if event.content_type == 'web_app_data':
                 character = event.web_app_data.data
-                character_id = CharacterQueries.get_character_id(character)
-
-                if character_id is None:
+                if CharacterQueries.get_character_id(character) is None:
                     CharacterQueries.insert_character(character)
-                    character_id = CharacterQueries.get_character_id(character)
-                UserQueries.update_user_character(user_id, character_id)
+                UserQueries.update_user_character(user_id, character)
+            else:
+                character = UserQueries.get_current_character(user_id)
 
-            self.character = GptCharacter(UserQueries.get_current_character(user_id))
-            self.character_id = UserQueries.select_user(user_id).current_character
-        # Saving the dialogue history from the database to maintain the context of the dialogue
-        elif event.content_type == 'text':
-            messages = MsgQueries.get_msg(event.from_user.id, self.character_id)
-            for msg in messages:
-                self.character.set_message(msg.user_msg)
-                self.character.set_bot_message(msg.bot_msg)
+            self.current_character[user_id] = character
 
-        data['character'] = self.character
-        data['character_id'] = self.character_id
+            if user_id not in self.cache:
+                self.cache[user_id] = {}
+            if character not in self.cache[user_id]:
+                self.cache[user_id][character] = GptCharacter(character)
+                messages = MsgQueries.get_msg(user_id, character)
+                for msg in messages:
+                    self.cache[user_id][character].set_message(msg.user_msg)
+                    self.cache[user_id][character].set_bot_message(msg.bot_msg)
 
-        return await handler(event, data)
+        if event.content_type == 'text' and event.text != '/start':
+            character = self.current_character[user_id]
+            data['character'] = self.cache[user_id][character]
+
+        response = await handler(event, data)
+        if event.content_type == 'text' and event.text != '/start':
+            print(self.cache[user_id][character].get_context())
+        return response

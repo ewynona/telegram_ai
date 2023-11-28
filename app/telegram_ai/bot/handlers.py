@@ -3,11 +3,11 @@ from aiogram.types import Message
 from chatbot import GptCharacter
 from db.queries import MsgQueries
 from .keyboards import web_app_markup, remove_markup
-from .middleware import CounterMiddleware
+from .middleware import UserMiddleware
 
 
 router = Router()
-router.message.middleware(CounterMiddleware())
+router.message.middleware(UserMiddleware())
 
 
 @router.message(F.text == '/start')
@@ -25,9 +25,10 @@ async def cmd_web_data(message: Message):
 
 # Generates and sends a response from chatgpt
 @router.message(F.text)
-async def cmd_text(message: Message, character: GptCharacter, character_id: int):
+async def cmd_text(message: Message, character: GptCharacter):
     character.set_message(message.text)
     # bot_msg = character.get_reply()
     bot_msg = 'test'
-    MsgQueries.insert_msg(message.from_user.id, character_id, message.text, bot_msg)
+    character.set_bot_message(bot_msg)
+    MsgQueries.insert_msg(message.from_user.id, character.character, message.text, bot_msg)
     await message.answer(f"{bot_msg}")

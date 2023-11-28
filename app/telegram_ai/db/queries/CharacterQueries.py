@@ -10,7 +10,6 @@ class CharacterQueries:
             session.add(person)
             session.commit()
 
-
     @staticmethod
     def get_character_id(character: str):
         with session_factory() as session:

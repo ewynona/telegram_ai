@@ -1,6 +1,6 @@
 import datetime
 from typing import Annotated
-from sqlalchemy import String, ForeignKey, func
+from sqlalchemy import String, ForeignKey, func, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from db import Base, engine
 
@@ -11,8 +11,8 @@ class UserInfo(Base):
     __tablename__ = 'user_info'
 
     id: Mapped[int_pk]
-    user_id: Mapped[int] = mapped_column(unique=True)
-    username: Mapped[str] = mapped_column(String(32))
+    user_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+    username: Mapped[str | None] = mapped_column(String(32))
     name: Mapped[str] = mapped_column(String(64))
     second_name: Mapped[str | None] = mapped_column(String(64))
     reg_time: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
@@ -37,4 +37,5 @@ class CharacterMsg(Base):
     msg_date: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
 
+# Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
