@@ -11,13 +11,19 @@ services:
       POSTGRES_USER: bikbulat
       POSTGRES_PASSWORD: bikbulat
       POSTGRES_DB: character_ai
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "bikbulat", "-d", "character_ai"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   chatbot:
     image: python-bot:latest
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ~/apps/python_bot:/app
     links:
