@@ -24,7 +24,6 @@ async def user_check(event) -> bool:
     return False
 
 
-# !!!!! Remake it by configure character caching for each user !!!!!
 class UserMiddleware(BaseMiddleware):
     def __init__(self):
         self.cache = {}
