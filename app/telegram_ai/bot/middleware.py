@@ -70,6 +70,4 @@ class UserMiddleware(BaseMiddleware):
             data['character'] = self.cache[user_id][character]
 
         response = await handler(event, data)
-        if event.content_type == 'text' and event.text != '/start':
-            print(self.cache[user_id][character].get_context())
         return response
